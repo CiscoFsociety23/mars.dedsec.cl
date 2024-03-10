@@ -1,0 +1,8 @@
+FROM node:slim
+
+RUN apt-get update && apt-get install -y openssl libssl-dev
+
+WORKDIR /api.dedsec.cl
+RUN npm i -g nodemon
+
+CMD ["nodemon", "src/index.ts"]
