@@ -6,6 +6,7 @@ class MarsService {
 
     public async getServiceStatus(){
         try {
+            console.log(`[info]: Obteniendo estado del servicio`);
             const serverStatus = await this.properties.getProperty('server_status');
             const serviceName = await this.properties.getProperty('service_name');
             return { service: Object(serviceName)[0].value, server: Object(serverStatus)[0].value };
