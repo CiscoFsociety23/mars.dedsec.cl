@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import env from 'dotenv';
-import { property } from '@interfaces/config/propertiesInterface';
+import { property } from '../mars/interfaces/config/propertiesInterface';
 
 const prisma: PrismaClient = new PrismaClient();
 env.config();
