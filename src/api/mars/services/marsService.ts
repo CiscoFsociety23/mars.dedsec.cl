@@ -1,7 +1,7 @@
-import { Properties } from "../../config/properties";
-import { ServiceStatus } from "../../config/servicesStatus";
-import { property } from "../interfaces/config/propertiesInterface";
-import { serviceStatus } from "../interfaces/config/servicesInterface";
+import { Properties } from "../../configs/properties";
+import { ServiceStatus } from "../../configs/servicesStatus";
+import { property } from "../interfaces/configs/propertiesInterface";
+import { serviceStatus } from "../interfaces/configs/servicesInterface";
 import { serviceInformation } from "../interfaces/controllers/informationsInterface";
 
 class MarsService {
