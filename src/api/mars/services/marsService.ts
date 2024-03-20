@@ -1,7 +1,8 @@
-import { Properties } from "../../config/properties";
-import { ServiceStatus } from "../../config/servicesStatus";
-import { property } from "../interfaces/config/propertiesInterface";
-import { serviceStatus } from "../interfaces/config/servicesInterface";
+import { Properties } from "@configs/properties";
+import { ServiceStatus } from "@configs/servicesStatus";
+import { property } from "@interfaces/config/propertiesInterface";
+import { serviceStatus } from "@interfaces/config/servicesInterface";
+import { serviceInformation } from "@interfaces/controllers/informationsInterface";
 
 class MarsService {
 
@@ -15,7 +16,7 @@ class MarsService {
         };
     };
 
-    public async getServiceStatus(){
+    public async getServiceStatus(): Promise<serviceInformation> {
         console.log(`[info]: Obteniendo estado del servicio`);
         const serverName: property[] = await this.properties.getProperty('Server Name');
         const userStatus: serviceStatus[] = await this.serviceStatus.getServiceStatus('User Service');

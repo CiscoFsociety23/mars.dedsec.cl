@@ -1,6 +1,6 @@
 import express, { Router, Request, Response } from "express";
-import { MarsService } from "../services/marsService";
-import { serviceInformation } from "../interfaces/controllers/informationsInterface";
+import { MarsService } from "@services/marsService";
+import { serviceInformation } from "@interfaces/controllers/informationsInterface";
 
 const marsController: Router = express.Router();
 const marsService: MarsService = new MarsService();

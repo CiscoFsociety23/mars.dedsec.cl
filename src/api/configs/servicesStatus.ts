@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import env from 'dotenv';
-import { serviceStatus } from '../mars/interfaces/config/servicesInterface';
+import { serviceStatus } from '@interfaces/config/servicesInterface';
 
 const prisma = new PrismaClient();
 env.config();
