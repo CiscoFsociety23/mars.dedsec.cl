@@ -16,3 +16,12 @@ export interface ServiceResponse {
     Message: string;
     User: Users
 };
+
+export interface UserHash {
+    passwd: string
+};
+
+export interface UserLogin {
+    email: string,
+    passwd: string
+}
