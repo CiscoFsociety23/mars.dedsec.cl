@@ -1,6 +1,6 @@
 import express, { Request, Response, Router } from 'express';
 import { UserService } from '../services/usersService';
-import { Users, UserBody, ServiceResponse } from '../interfaces/models/users';
+import { Users, UserBody, ServiceResponse, UserLogin } from '../interfaces/models/users';
 
 const userController: Router = express.Router();
 const userService: UserService = new UserService();
@@ -43,6 +43,17 @@ userController.delete('/delete', async (req: Request, res: Response) => {
         const id = req.query.id;
         const deleteUser: ServiceResponse = await userService.deleteUser(Number(id));
         res.json(deleteUser);
+    } catch (error) {
+        console.log(`[error]: ${error}`);
+        res.json({ status: false });
+    };
+});
+
+userController.post('/check', async (req: Request, res: Response) => {
+    try {
+        const userAccess: UserLogin = req.body;
+        const checkAccess = await userService.checkAccess(userAccess.email, userAccess.passwd);
+        res.json({ access: checkAccess });
     } catch (error) {
         console.log(`[error]: ${error}`);
         res.json({ status: false });
