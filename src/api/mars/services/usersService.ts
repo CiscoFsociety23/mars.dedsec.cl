@@ -36,14 +36,14 @@ class UserService {
         return { Message: 'Usuario Eliminado', User: deleteUser };
     };
 
-    private async getAccount(userEmail: string): Promise<boolean>{
+    public async getAccount(userEmail: string): Promise<boolean>{
         console.log(`[info]: Verificando si existe la cuenta ${userEmail}`);
         const user: Users[] = await prisma.users.findMany({ select: { id: true, name: true, lastName: true, email: true }, where: { email: userEmail } });
         if(user.length > 0){
             console.log(`[info]: Usuario ${userEmail} encontrado con exito`);
             return true;
         } else {
-            console.log(`[error]: Usuario ${userEmail} no registrado`);
+            console.log(`[info]: Usuario ${userEmail} no registrado`);
             return false;
         };
     };
