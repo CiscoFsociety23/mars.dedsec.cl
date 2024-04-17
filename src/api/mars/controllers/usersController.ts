@@ -1,8 +1,10 @@
 import express, { Request, Response, Router } from 'express';
 import { UserService } from '../services/usersService';
 import { Users, UserBody, ServiceResponse, UserLogin } from '../interfaces/models/users';
+import { UserMiddleware } from '../middleware/usersMiddleware';
 
 const userController: Router = express.Router();
+const userMiddleware: UserMiddleware = new UserMiddleware();
 const userService: UserService = new UserService();
 
 userController.get('/', async (req: Request, res: Response) => {
@@ -15,7 +17,7 @@ userController.get('/', async (req: Request, res: Response) => {
     };
 });
 
-userController.post('/create', async (req: Request, res: Response) => {
+userController.post('/create', userMiddleware.checkIfExists, async (req: Request, res: Response) => {
     try {
         const userBody: UserBody = req.body;
         const createUser: ServiceResponse = await userService.createUser(userBody);
