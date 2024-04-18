@@ -6,8 +6,8 @@ class Routing {
 
     public apiRouter(app: Express) {
         const router: Router = express.Router();
-        app.use('/api/', marsController);
-        app.use('/api/users', userController);
+        app.use('/api-mars/', marsController);
+        app.use('/api-mars/users', userController);
     };
 
 };
