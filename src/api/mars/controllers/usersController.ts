@@ -54,8 +54,13 @@ userController.delete('/delete', async (req: Request, res: Response) => {
 userController.post('/check', async (req: Request, res: Response) => {
     try {
         const userAccess: UserLogin = req.body;
-        const checkAccess = await userService.checkAccess(userAccess.email, userAccess.passwd);
-        res.json({ access: checkAccess });
+        const checkAccess: boolean = await userService.checkAccess(userAccess.email, userAccess.passwd);
+        if(checkAccess === true){
+            const token: string = await userService.getToken(userAccess.email);
+            res.json({ access: checkAccess, token });
+        } else {
+            res.json({ status: false });
+        };
     } catch (error) {
         console.log(`[error]: ${error}`);
         res.json({ status: false });

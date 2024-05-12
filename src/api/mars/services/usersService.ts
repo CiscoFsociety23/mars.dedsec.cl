@@ -1,9 +1,13 @@
 import { PrismaClient } from '@prisma/client';
 import { Users, UserBody, ServiceResponse, UserHash } from '../interfaces/models/users';
 import bcrypt from 'bcryptjs';
+import axios from 'axios';
+import { Properties } from '../../configs/properties';
 const prisma = new PrismaClient();
 
 class UserService {
+
+    private property: Properties = new Properties();
 
     public async getUsers(): Promise<Users[]>{
         console.log(`[info]: Obteniendo listado de usuarios`);
@@ -81,6 +85,16 @@ class UserService {
             return false;
         };
     };
+
+    public async getToken(client: string): Promise<string>{
+        console.log('[info]: Realizando solicitud de Token');
+        const [ jupiter_url ] = await this.property.getProperty('Jupiter URL');
+        const [ jupiter_user ] = await this.property.getProperty('Jupiter User');
+        const [ jupiter_passwd ] = await this.property.getProperty('Jupiter Passwd');
+        const { data } = await axios.get(`${jupiter_url.value}?user=${jupiter_user.value}&passwd=${jupiter_passwd.value}&client=${client}`);
+        console.log('[info]: Token obtenido ok');
+        return data.token;
+    }
 
 };
 
