@@ -20,7 +20,7 @@ class UserService {
         console.log(`[info]: Iniciando creacion de usuario`);
         const passHash = bcrypt.hashSync(btoa(user.passwd), 10);
         const create: Users = await prisma.users.create({
-            select: { id: true, name: true, lastName: true, email: true },
+            select: { id: true, name: true, lastName: true, email: true, profile: true },
             data: { name: user.name, lastName: user.lastName, email: user.email, passwd: passHash, profile: {connect: { id: user.profile }} }
         });
         console.log(`[info]: Se crea el usuario ${user.name} ${user.lastName}, correo: ${user.email}`);
@@ -33,7 +33,7 @@ class UserService {
         const updateUser: Users = await prisma.users.update({
             where: { id: userId }, 
             data: { name: userData.name, lastName: userData.lastName, email: userData.email, passwd: passHash, profile: {connect: { id: userData.profile }} }, 
-            select: { id: true, name: true, lastName: true, email: true }
+            select: { id: true, name: true, lastName: true, email: true, profile: true }
         });
         console.log(`[info]: Se actualiza el usuario ${updateUser.name} ${updateUser.lastName}, correo: ${updateUser.email}`);
         return { Message: 'Usuario actualizado', User: updateUser };
@@ -41,7 +41,7 @@ class UserService {
 
     public async deleteUser(userId: number): Promise<ServiceResponse>{
         console.log(`[info]: Iniciando eliminacion de usuario con id ${userId}`);
-        const deleteUser = await prisma.users.delete({ where: { id: userId }, select: { id: true, name: true, lastName: true, email: true }});
+        const deleteUser = await prisma.users.delete({ where: { id: userId }, select: { id: true, name: true, lastName: true, email: true, profile: true }});
         return { Message: 'Usuario Eliminado', User: deleteUser };
     };
 
@@ -96,10 +96,21 @@ class UserService {
         const [ jupiter_url ] = await this.property.getProperty('Jupiter URL');
         const [ jupiter_user ] = await this.property.getProperty('Jupiter User');
         const [ jupiter_passwd ] = await this.property.getProperty('Jupiter Passwd');
-        const { data } = await axios.get(`${jupiter_url.value}?user=${jupiter_user.value}&passwd=${jupiter_passwd.value}&client=${client}`);
+        const profile = await this.getProfile(client);
+        const { data } = await axios.get(`${jupiter_url.value}?user=${jupiter_user.value}&passwd=${jupiter_passwd.value}&client=${client}&profile=${profile}`);
         console.log('[info]: Token obtenido ok');
         return data.token;
-    }
+    };
+
+    private async getProfile(email: string): Promise<String>{
+        console.log(`[info]: Obtenindo perfil de: ${email}`);
+        const account: Users[] = await prisma.users.findMany({
+            select: { id: true, name: true, lastName: true, email: true, profile: { select: { profile: true } } }, 
+            where: { email: email }
+        });
+        console.log(`[info]: Perfil obtenido: ${account[0].profile.profile}`)
+        return account[0].profile.profile;
+    };
 
 };
 

@@ -3,6 +3,11 @@ export interface Users {
     name: string;
     lastName: string;
     email: string;
+    profile: Profile
+};
+
+export interface Profile {
+    profile: string;
 };
 
 export interface UserBody {
