@@ -11,7 +11,7 @@ class UserService {
 
     public async getUsers(): Promise<Users[]>{
         console.log(`[info]: Obteniendo listado de usuarios`);
-        const users: Users[] = await prisma.users.findMany({ select: { id: true, name: true, lastName: true, email: true }, orderBy: { id: 'desc' }});
+        const users: Users[] = await prisma.users.findMany({ select: { id: true, name: true, lastName: true, email: true, profile: { select: { profile: true } } }, orderBy: { id: 'desc' }});
         console.log(`[info]: Usuarios encontrados ${users.length}`);
         return users;
     };
@@ -21,7 +21,7 @@ class UserService {
         const passHash = bcrypt.hashSync(btoa(user.passwd), 10);
         const create: Users = await prisma.users.create({
             select: { id: true, name: true, lastName: true, email: true },
-            data: { name: user.name, lastName: user.lastName, email: user.email, passwd: passHash }
+            data: { name: user.name, lastName: user.lastName, email: user.email, passwd: passHash, profile: {connect: { id: user.profile }} }
         });
         console.log(`[info]: Se crea el usuario ${user.name} ${user.lastName}, correo: ${user.email}`);
         return { Message: 'Usuario creado', User: create };
@@ -29,7 +29,12 @@ class UserService {
 
     public async updateUser(userId: number, userData: UserBody): Promise<ServiceResponse>{
         console.log(`[info]: Iniciando actualizacion de usuario con id ${userId}`);
-        const updateUser: Users = await prisma.users.update({ where: { id: userId }, data: { ...userData }, select: { id: true, name: true, lastName: true, email: true }});
+        const passHash = bcrypt.hashSync(btoa(userData.passwd), 10);
+        const updateUser: Users = await prisma.users.update({
+            where: { id: userId }, 
+            data: { name: userData.name, lastName: userData.lastName, email: userData.email, passwd: passHash, profile: {connect: { id: userData.profile }} }, 
+            select: { id: true, name: true, lastName: true, email: true }
+        });
         console.log(`[info]: Se actualiza el usuario ${updateUser.name} ${updateUser.lastName}, correo: ${updateUser.email}`);
         return { Message: 'Usuario actualizado', User: updateUser };
     };
@@ -42,7 +47,7 @@ class UserService {
 
     public async getAccount(userEmail: string): Promise<boolean>{
         console.log(`[info]: Verificando si existe la cuenta ${userEmail}`);
-        const user: Users[] = await prisma.users.findMany({ select: { id: true, name: true, lastName: true, email: true }, where: { email: userEmail } });
+        const user: Users[] = await prisma.users.findMany({ select: { id: true, name: true, lastName: true, email: true, profile: { select: { profile: true } } }, where: { email: userEmail } });
         if(user.length > 0){
             console.log(`[info]: Usuario ${userEmail} encontrado con exito`);
             return true;

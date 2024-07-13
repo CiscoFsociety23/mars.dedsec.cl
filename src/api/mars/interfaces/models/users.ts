@@ -10,6 +10,7 @@ export interface UserBody {
     lastName: string;
     email: string;
     passwd: string;
+    profile: number;
 };
 
 export interface ServiceResponse {
