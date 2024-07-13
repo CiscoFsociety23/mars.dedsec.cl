@@ -3,6 +3,11 @@ export interface Users {
     name: string;
     lastName: string;
     email: string;
+    profile: Profile
+};
+
+export interface Profile {
+    profile: string;
 };
 
 export interface UserBody {
@@ -10,6 +15,7 @@ export interface UserBody {
     lastName: string;
     email: string;
     passwd: string;
+    profile: number;
 };
 
 export interface ServiceResponse {
