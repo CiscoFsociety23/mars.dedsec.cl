@@ -9,8 +9,14 @@ const userService: UserService = new UserService();
 
 userController.get('/', async (req: Request, res: Response) => {
     try {
-        const getUsers: Users[] = await userService.getUsers();
-        res.json(getUsers);
+        const { email } = req.query;
+        if(email){
+            const getUserByEmail: Users = await userService.getUserByEmail(String(email));
+            res.json(getUserByEmail);
+        } else {
+            const getUsers: Users[] = await userService.getUsers();
+            res.json(getUsers);
+        };
     } catch (error) {
         console.log(`[error]: ${error}`);
         res.json({ status: false });
