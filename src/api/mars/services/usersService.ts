@@ -16,6 +16,16 @@ class UserService {
         return users;
     };
 
+    public async getUserByEmail(userEmail: string): Promise<Users>{
+        console.log(`[info]: Obteniendo usuario con el correo: ${userEmail}`);
+        const [ user ]: Users[] = await prisma.users.findMany({
+            select: { id: true, name: true, lastName: true, email: true, profile: { select: { profile: true } } },
+            where: { email: userEmail }
+        });
+        console.log(`[info]: Usuario encontrado: { ${user.id}, ${user.name}, ${user.lastName}, ${user.email}, ${user.profile.profile} }`);
+        return user;
+    };
+
     public async createUser(user: UserBody): Promise<ServiceResponse>{
         console.log(`[info]: Iniciando creacion de usuario`);
         const passHash = bcrypt.hashSync(btoa(user.passwd), 10);
