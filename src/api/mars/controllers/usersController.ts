@@ -2,10 +2,12 @@ import express, { Request, Response, Router } from 'express';
 import { UserService } from '../services/usersService';
 import { Users, UserBody, ServiceResponse, UserLogin } from '../interfaces/models/users';
 import { UserMiddleware } from '../middleware/usersMiddleware';
+import { EmailService } from '../services/emailService';
 
 const userController: Router = express.Router();
 const userMiddleware: UserMiddleware = new UserMiddleware();
 const userService: UserService = new UserService();
+const emailService: EmailService = new EmailService();
 
 userController.get('/', async (req: Request, res: Response) => {
     try {
@@ -27,6 +29,7 @@ userController.post('/create', userMiddleware.checkIfExists, async (req: Request
     try {
         const userBody: UserBody = req.body;
         const createUser: ServiceResponse = await userService.createUser(userBody);
+        emailService.sendSimpleMail(userBody.email, 'Creacion de Cuenta', `Bienvenido ${userBody.name}, se ha creado su cuenta con el perfil ${createUser.User.profile.profile}`);
         res.json(createUser);
     } catch (error) {
         console.log(`[error]: ${error}`);
