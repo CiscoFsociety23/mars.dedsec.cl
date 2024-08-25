@@ -10,6 +10,14 @@ export class EmailService {
         console.log(`[info]: Procesando envio de correo`);
         const senderUrl: property[] = await this.properties.getProperty('Simple Mail URL');
         axios.post(senderUrl[0].value, { reciever, subject, message });
+        console.log(`[info]: Correo enviado a Mercury para ser procesado`);
     };
+
+    public async sendWelcomeMail(reciever: string, subject: string, userName: string){
+        console.log(`[info]: Procesando envio de correo`);
+        const [ senderUrl ]: property[] = await this.properties.getProperty('Welcome Mail URL');
+        axios.post(senderUrl.value, { reciever, subject, userName });
+        console.log(`[info]: Correo enviado a Mercury para ser procesado`);
+    }
 
 };

@@ -29,6 +29,7 @@ userController.post('/create', userMiddleware.checkIfExists, async (req: Request
     try {
         const userBody: UserBody = req.body;
         const createUser: ServiceResponse = await userService.createUser(userBody);
+        emailService.sendWelcomeMail(userBody.email, 'Bienvenido a Dedsec Corp', userBody.name);
         emailService.sendSimpleMail(userBody.email, 'Creacion de Cuenta', `Bienvenido ${userBody.name}, se ha creado su cuenta con el perfil ${createUser.User.profile.profile}`);
         res.json(createUser);
     } catch (error) {
