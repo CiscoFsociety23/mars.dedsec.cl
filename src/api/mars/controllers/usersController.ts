@@ -68,8 +68,13 @@ userController.post('/check', async (req: Request, res: Response) => {
         const userAccess: UserLogin = req.body;
         const checkAccess: boolean = await userService.checkAccess(userAccess.email, userAccess.passwd);
         if(checkAccess === true){
-            const token: string = await userService.getToken(userAccess.email);
-            res.json({ access: checkAccess, token });
+            const status = await userService.getStatusAccount(userAccess.email);
+            if(status){
+                const token: string = await userService.getToken(userAccess.email);
+                res.json({ access: checkAccess, token });
+            } else {
+                res.json({ status: false, message: 'Debe validar su cuenta, hemo enviado un correo para confirmar su acceso' });
+            }
         } else {
             res.json({ status: false });
         };
