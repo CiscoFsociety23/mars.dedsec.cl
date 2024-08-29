@@ -137,12 +137,21 @@ class UserService {
             select: { status: { select: { name: true } } },
             where: { userId: (await account).id }
         });
-        console.log(`[info]: el estado ${email} de la cuenta es ${status.status.name}`);
+        console.log(`[info]: El estado de la cuenta ${email} es ${status.status.name}`);
         if (status.status.name === 'PENDING'){
             return false;
         } else {
             return true;
         };
+    };
+
+    public async getValidationToken(email: string) {
+        console.log(`[info]: Solicitud de token para la cuenta ${email}`);
+        const [ jupiter_url ] = await this.property.getProperty('Jupiter URL');
+        const [ jupiter_user ] = await this.property.getProperty('Jupiter User');
+        const [ jupiter_passwd ] = await this.property.getProperty('Jupiter Passwd');
+        const { data } = await axios.get(`${jupiter_url.value}/validationToken?user=${jupiter_user.value}&passwd=${jupiter_passwd.value}&client=${email}`);
+        return data;
     };
 
 };

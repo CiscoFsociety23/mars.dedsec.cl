@@ -18,6 +18,14 @@ export class EmailService {
         const [ senderUrl ]: property[] = await this.properties.getProperty('Welcome Mail URL');
         axios.post(senderUrl.value, { reciever, subject, userName });
         console.log(`[info]: Correo enviado a Mercury para ser procesado`);
-    }
+    };
+
+    public async sendValidationMail(reciever: string, subject: string, token: string){
+        console.log(`[info]: Procesando envio de correo`);
+        const [ senderUrl ]: property[] = await this.properties.getProperty('Validation Mail URL');
+        const [ validationURL ]: property[] = await this.properties.getProperty('Validation URL');
+        axios.post(senderUrl.value, { reciever, subject, validation_url: `${validationURL.value}?token=${token}` });
+        console.log(`[info]: Correo enviado a Mercury para ser procesado`);
+    };
 
 };

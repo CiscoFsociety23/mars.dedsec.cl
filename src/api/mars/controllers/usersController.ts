@@ -30,8 +30,10 @@ userController.post('/create', userMiddleware.checkIfExists, async (req: Request
         const userBody: UserBody = req.body;
         const createUser: ServiceResponse = await userService.createUser(userBody);
         emailService.sendWelcomeMail(userBody.email, 'Bienvenido a Dedsec Corp', userBody.name);
+        const tokenValidation = await userService.getValidationToken(userBody.email);
+        console.log(`[info]: Se asigna un token de validacion a la cuenta ${userBody.email}`);
         setTimeout(() => {
-            emailService.sendSimpleMail(userBody.email, 'Creacion de Cuenta', `Bienvenido ${userBody.name}, se ha creado su cuenta con el perfil ${createUser.User.profile.profile}`);
+            emailService.sendValidationMail(userBody.email, 'Validacion de Cuenta', tokenValidation.token);
         }, 5000);
         res.json(createUser);
     } catch (error) {
