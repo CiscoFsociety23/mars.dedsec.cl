@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { Users, UserBody, ServiceResponse, UserHash } from '../interfaces/models/users';
 import bcrypt from 'bcryptjs';
-import axios from 'axios';
+import axios, { AxiosHeaders } from 'axios';
 import { Properties } from '../../configs/properties';
 const prisma = new PrismaClient();
 
@@ -33,6 +33,11 @@ class UserService {
             select: { id: true, name: true, lastName: true, email: true, profile: true },
             data: { name: user.name, lastName: user.lastName, email: user.email, passwd: passHash, profile: {connect: { id: user.profile }} }
         });
+        const setStatus = await prisma.userStatus.create({
+            data: { userId: create.id, statusId: 3 },
+            select: { status: { select: { name: true } } }
+        });
+        console.log(`[info]: Se asigna el estado ${setStatus.status.name} a la cuenta ${create.email}`);
         console.log(`[info]: Se crea el usuario ${user.name} ${user.lastName}, correo: ${user.email}`);
         return { Message: 'Usuario creado', User: create };
     };
@@ -51,6 +56,9 @@ class UserService {
 
     public async deleteUser(userId: number): Promise<ServiceResponse>{
         console.log(`[info]: Iniciando eliminacion de usuario con id ${userId}`);
+        const [ getStatus ] = await prisma.userStatus.findMany({ where: { userId: userId } });
+        const deleteStatus = await prisma.userStatus.delete({ where: { id: getStatus.id } });
+        console.log(`[info]: Eliminando status del usuario con id: ${userId}`);
         const deleteUser = await prisma.users.delete({ where: { id: userId }, select: { id: true, name: true, lastName: true, email: true, profile: true }});
         return { Message: 'Usuario Eliminado', User: deleteUser };
     };
@@ -120,6 +128,52 @@ class UserService {
         });
         console.log(`[info]: Perfil obtenido: ${account[0].profile.profile}`)
         return account[0].profile.profile;
+    };
+
+    public async getStatusAccount(email: string) {
+        console.log(`[info]: Obteniendo estado de la cuenta ${email}`);
+        const account: Promise<Users> = this.getUserByEmail(email);
+        const [ status ] = await prisma.userStatus.findMany({
+            select: { status: { select: { name: true } } },
+            where: { userId: (await account).id }
+        });
+        console.log(`[info]: El estado de la cuenta ${email} es ${status.status.name}`);
+        if (status.status.name === 'PENDING'){
+            return false;
+        } else {
+            return true;
+        };
+    };
+
+    public async getValidationToken(email: string) {
+        console.log(`[info]: Solicitud de token para la cuenta ${email}`);
+        const [ jupiter_url ] = await this.property.getProperty('Jupiter URL');
+        const [ jupiter_user ] = await this.property.getProperty('Jupiter User');
+        const [ jupiter_passwd ] = await this.property.getProperty('Jupiter Passwd');
+        const { data } = await axios.get(`${jupiter_url.value}/validationToken?user=${jupiter_user.value}&passwd=${jupiter_passwd.value}&client=${email}`);
+        return data;
+    };
+
+    public async verifyAccount(token: string) {
+        console.log(`[info]: Iniciando validacion de la cuenta`);
+        const [ validation_url ] = await this.property.getProperty('Jupiter Verification URL');
+        const headers = new AxiosHeaders({
+            Authorization: `Bearer ${token}`
+          });
+        const verify = await axios.post(validation_url.value, null, { headers });
+        if(verify.data.status == true){
+            return true;
+        } else {
+            return false;
+        };
+    };
+
+    public async updateStatusAccount(email: string) {
+        const [ account ] = await prisma.users.findMany({ where: { email } });
+        const [ status ] = await prisma.userStatus.findMany({ where: { userId: account.id } });
+        const activate = await prisma.userStatus.update({
+            data: { statusId: 4 }, where: { id: status.id }
+        });
     };
 
 };
