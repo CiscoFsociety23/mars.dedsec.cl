@@ -1,10 +1,12 @@
 {
   "name": "mars.dedsec.cl",
-  "version": "1.5.2",
+  "version": "1.6.2",
   "description": "",
   "main": "./src/index.ts",
   "scripts": {
-    "start": "nodemon src/index.ts"
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "dev": "ts-node-dev src/index.ts"
   },
   "repository": {
     "type": "git",
@@ -36,6 +38,7 @@
     "prettier": "^3.2.5",
     "prisma": "^5.10.2",
     "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
     "typescript": "^5.3.3"
   }
 }
