@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { Users, UserBody, ServiceResponse, UserHash } from '../interfaces/models/users';
 import bcrypt from 'bcryptjs';
-import axios from 'axios';
+import axios, { AxiosHeaders } from 'axios';
 import { Properties } from '../../configs/properties';
 const prisma = new PrismaClient();
 
@@ -152,6 +152,28 @@ class UserService {
         const [ jupiter_passwd ] = await this.property.getProperty('Jupiter Passwd');
         const { data } = await axios.get(`${jupiter_url.value}/validationToken?user=${jupiter_user.value}&passwd=${jupiter_passwd.value}&client=${email}`);
         return data;
+    };
+
+    public async verifyAccount(token: string) {
+        console.log(`[info]: Iniciando validacion de la cuenta`);
+        const [ validation_url ] = await this.property.getProperty('Jupiter Verification URL');
+        const headers = new AxiosHeaders({
+            Authorization: `Bearer ${token}`
+          });
+        const verify = await axios.post(validation_url.value, null, { headers });
+        if(verify.data.status == true){
+            return true;
+        } else {
+            return false;
+        };
+    };
+
+    public async updateStatusAccount(email: string) {
+        const [ account ] = await prisma.users.findMany({ where: { email } });
+        const [ status ] = await prisma.userStatus.findMany({ where: { userId: account.id } });
+        const activate = await prisma.userStatus.update({
+            data: { statusId: 4 }, where: { id: status.id }
+        });
     };
 
 };

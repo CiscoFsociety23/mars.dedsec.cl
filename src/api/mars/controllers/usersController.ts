@@ -86,4 +86,23 @@ userController.post('/check', async (req: Request, res: Response) => {
     };
 });
 
+userController.get('/validate', async (req: Request, res: Response) => {
+    try {
+        const { token } = req.query;
+        const userEmail = atob(String(token).split('.')[1]).split('"')[3];
+        const verification = await userService.verifyAccount(String(token));
+        if(verification == true){
+            userService.updateStatusAccount(userEmail);
+            res.redirect('/');
+        } else {
+            const tokenValidation = await userService.getValidationToken(userEmail);
+            emailService.sendValidationMail(userEmail, 'Validacion de Cuenta', tokenValidation.token);
+            res.redirect('/no-validado');
+        };
+    } catch (error) {
+        console.log(`[error]: ${error}`);
+        res.json({ status: false });
+    };
+});
+
 export { userController };
