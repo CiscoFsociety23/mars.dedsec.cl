@@ -91,13 +91,24 @@ userController.get('/validate', async (req: Request, res: Response) => {
         const { token } = req.query;
         const userEmail = atob(String(token).split('.')[1]).split('"')[3];
         const verification = await userService.verifyAccount(String(token));
+        const isValidated = await userService.getStatusAccount(userEmail);
         if(verification == true){
-            userService.updateStatusAccount(userEmail);
-            res.redirect('/');
+            if(isValidated == false){
+                userService.updateStatusAccount(userEmail);
+                res.redirect('/');
+            } else {
+                console.log('[info]: La cuenta ya se encuentra validada');
+                res.redirect('/');
+            };
         } else {
-            const tokenValidation = await userService.getValidationToken(userEmail);
-            emailService.sendValidationMail(userEmail, 'Validacion de Cuenta', tokenValidation.token);
-            res.redirect('/no-validado');
+            if(isValidated === false){
+                const tokenValidation = await userService.getValidationToken(userEmail);
+                emailService.sendValidationMail(userEmail, 'Validacion de Cuenta', tokenValidation.token);
+                res.redirect('/no-validado');
+            } else {
+                console.log('[info]: La cuenta ya se encuentra validada');
+                res.redirect('/');
+            };
         };
     } catch (error) {
         console.log(`[error]: ${error}`);
