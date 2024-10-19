@@ -10,75 +10,110 @@ class UserService {
     private property: Properties = new Properties();
 
     public async getUsers(): Promise<Users[]>{
-        console.log(`[info]: Obteniendo listado de usuarios`);
-        const users: Users[] = await prisma.users.findMany({ select: { id: true, name: true, lastName: true, email: true, profile: { select: { profile: true } } }, orderBy: { id: 'desc' }});
-        console.log(`[info]: Usuarios encontrados ${users.length}`);
-        return users;
+        try {
+            prisma.$connect();
+            console.log(`[info]: Obteniendo listado de usuarios`);
+            const users: Users[] = await prisma.users.findMany({ select: { id: true, name: true, lastName: true, email: true, profile: { select: { profile: true } } }, orderBy: { id: 'desc' }});
+            console.log(`[info]: Usuarios encontrados ${users.length}`);
+            return users;
+        } finally {
+            prisma.$disconnect();
+        }
     };
 
     public async getUserByEmail(userEmail: string): Promise<Users>{
-        console.log(`[info]: Obteniendo usuario con el correo: ${userEmail}`);
-        const [ user ]: Users[] = await prisma.users.findMany({
-            select: { id: true, name: true, lastName: true, email: true, profile: { select: { profile: true } } },
-            where: { email: userEmail }
-        });
-        console.log(`[info]: Usuario encontrado: { ${user.id}, ${user.name}, ${user.lastName}, ${user.email}, ${user.profile.profile} }`);
-        return user;
+        try {
+            prisma.$connect();
+            console.log(`[info]: Obteniendo usuario con el correo: ${userEmail}`);
+            const [ user ]: Users[] = await prisma.users.findMany({
+                select: { id: true, name: true, lastName: true, email: true, profile: { select: { profile: true } } },
+                where: { email: userEmail }
+            });
+            console.log(`[info]: Usuario encontrado: { ${user.id}, ${user.name}, ${user.lastName}, ${user.email}, ${user.profile.profile} }`);
+            return user;
+        } finally {
+            prisma.$disconnect();
+        }
     };
 
     public async createUser(user: UserBody): Promise<ServiceResponse>{
-        console.log(`[info]: Iniciando creacion de usuario`);
-        const passHash = bcrypt.hashSync(btoa(user.passwd), 10);
-        const create: Users = await prisma.users.create({
-            select: { id: true, name: true, lastName: true, email: true, profile: true },
-            data: { name: user.name, lastName: user.lastName, email: user.email, passwd: passHash, profile: {connect: { id: user.profile }} }
-        });
-        const setStatus = await prisma.userStatus.create({
-            data: { userId: create.id, statusId: 3 },
-            select: { status: { select: { name: true } } }
-        });
-        console.log(`[info]: Se asigna el estado ${setStatus.status.name} a la cuenta ${create.email}`);
-        console.log(`[info]: Se crea el usuario ${user.name} ${user.lastName}, correo: ${user.email}`);
-        return { Message: 'Usuario creado', User: create };
+        try {
+            prisma.$connect();
+            console.log(`[info]: Iniciando creacion de usuario`);
+            const passHash = bcrypt.hashSync(btoa(user.passwd), 10);
+            const create: Users = await prisma.users.create({
+                select: { id: true, name: true, lastName: true, email: true, profile: true },
+                data: { name: user.name, lastName: user.lastName, email: user.email, passwd: passHash, profile: {connect: { id: user.profile }} }
+            });
+            const setStatus = await prisma.userStatus.create({
+                data: { userId: create.id, statusId: 3 },
+                select: { status: { select: { name: true } } }
+            });
+            console.log(`[info]: Se asigna el estado ${setStatus.status.name} a la cuenta ${create.email}`);
+            console.log(`[info]: Se crea el usuario ${user.name} ${user.lastName}, correo: ${user.email}`);
+            return { Message: 'Usuario creado', User: create };
+        } finally {
+            prisma.$disconnect();
+        }
     };
 
     public async updateUser(userId: number, userData: UserBody): Promise<ServiceResponse>{
-        console.log(`[info]: Iniciando actualizacion de usuario con id ${userId}`);
-        const passHash = bcrypt.hashSync(btoa(userData.passwd), 10);
-        const updateUser: Users = await prisma.users.update({
-            where: { id: userId }, 
-            data: { name: userData.name, lastName: userData.lastName, email: userData.email, passwd: passHash, profile: {connect: { id: userData.profile }} }, 
-            select: { id: true, name: true, lastName: true, email: true, profile: true }
-        });
-        console.log(`[info]: Se actualiza el usuario ${updateUser.name} ${updateUser.lastName}, correo: ${updateUser.email}`);
-        return { Message: 'Usuario actualizado', User: updateUser };
+        try {
+            prisma.$connect();
+            console.log(`[info]: Iniciando actualizacion de usuario con id ${userId}`);
+            const passHash = bcrypt.hashSync(btoa(userData.passwd), 10);
+            const updateUser: Users = await prisma.users.update({
+                where: { id: userId }, 
+                data: { name: userData.name, lastName: userData.lastName, email: userData.email, passwd: passHash, profile: {connect: { id: userData.profile }} }, 
+                select: { id: true, name: true, lastName: true, email: true, profile: true }
+            });
+            console.log(`[info]: Se actualiza el usuario ${updateUser.name} ${updateUser.lastName}, correo: ${updateUser.email}`);
+            return { Message: 'Usuario actualizado', User: updateUser };
+        } finally {
+            prisma.$disconnect();
+        }
     };
 
     public async deleteUser(userId: number): Promise<ServiceResponse>{
-        console.log(`[info]: Iniciando eliminacion de usuario con id ${userId}`);
-        const [ getStatus ] = await prisma.userStatus.findMany({ where: { userId: userId } });
-        const deleteStatus = await prisma.userStatus.delete({ where: { id: getStatus.id } });
-        console.log(`[info]: Eliminando status del usuario con id: ${userId}`);
-        const deleteUser = await prisma.users.delete({ where: { id: userId }, select: { id: true, name: true, lastName: true, email: true, profile: true }});
-        return { Message: 'Usuario Eliminado', User: deleteUser };
+        try {
+            prisma.$connect();
+            console.log(`[info]: Iniciando eliminacion de usuario con id ${userId}`);
+            const [ getStatus ] = await prisma.userStatus.findMany({ where: { userId: userId } });
+            const deleteStatus = await prisma.userStatus.delete({ where: { id: getStatus.id } });
+            console.log(`[info]: Eliminando status del usuario con id: ${userId}`);
+            const deleteUser = await prisma.users.delete({ where: { id: userId }, select: { id: true, name: true, lastName: true, email: true, profile: true }});
+            return { Message: 'Usuario Eliminado', User: deleteUser };
+        } finally {
+            prisma.$disconnect();
+        }
     };
 
     public async getAccount(userEmail: string): Promise<boolean>{
-        console.log(`[info]: Verificando si existe la cuenta ${userEmail}`);
-        const user: Users[] = await prisma.users.findMany({ select: { id: true, name: true, lastName: true, email: true, profile: { select: { profile: true } } }, where: { email: userEmail } });
-        if(user.length > 0){
-            console.log(`[info]: Usuario ${userEmail} encontrado con exito`);
-            return true;
-        } else {
-            console.log(`[info]: Usuario ${userEmail} no registrado`);
-            return false;
-        };
+        try {
+            prisma.$connect();
+            console.log(`[info]: Verificando si existe la cuenta ${userEmail}`);
+            const user: Users[] = await prisma.users.findMany({ select: { id: true, name: true, lastName: true, email: true, profile: { select: { profile: true } } }, where: { email: userEmail } });
+            if(user.length > 0){
+                console.log(`[info]: Usuario ${userEmail} encontrado con exito`);
+                return true;
+            } else {
+                console.log(`[info]: Usuario ${userEmail} no registrado`);
+                return false;
+            };
+        } finally {
+            prisma.$disconnect();
+        }
     };
 
     private async getHashPasswd(userEmail: string): Promise<UserHash>{
-        console.log(`[info]: Obteniendo contraseña actual del usuario ${userEmail}`);
-        const [ getHash ]: UserHash[] = await prisma.users.findMany({ select: { passwd: true }, where: { email: userEmail } });
-        return getHash;
+        try {
+            prisma.$connect();
+            console.log(`[info]: Obteniendo contraseña actual del usuario ${userEmail}`);
+            const [ getHash ]: UserHash[] = await prisma.users.findMany({ select: { passwd: true }, where: { email: userEmail } });
+            return getHash;
+        } finally {
+            prisma.$disconnect();
+        }
     };
 
     private async checkPasswd(usrPasswd: string, currPasswd: string, user: string): Promise<boolean>{
@@ -169,11 +204,16 @@ class UserService {
     };
 
     public async updateStatusAccount(email: string) {
-        const [ account ] = await prisma.users.findMany({ where: { email } });
-        const [ status ] = await prisma.userStatus.findMany({ where: { userId: account.id } });
-        const activate = await prisma.userStatus.update({
-            data: { statusId: 4 }, where: { id: status.id }
-        });
+        try {
+            prisma.$connect();
+            const [ account ] = await prisma.users.findMany({ where: { email } });
+            const [ status ] = await prisma.userStatus.findMany({ where: { userId: account.id } });
+            const activate = await prisma.userStatus.update({
+                data: { statusId: 4 }, where: { id: status.id }
+            });
+        } finally {
+            prisma.$disconnect();
+        }
     };
 
 };
