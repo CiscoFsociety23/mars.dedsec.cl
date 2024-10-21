@@ -9,7 +9,7 @@ const userMiddleware: UserMiddleware = new UserMiddleware();
 const userService: UserService = new UserService();
 const emailService: EmailService = new EmailService();
 
-userController.get('/', async (req: Request, res: Response) => {
+userController.get('/', userMiddleware.checkHeader, userMiddleware.checkAdminProfile, async (req: Request, res: Response) => {
     try {
         const { email } = req.query;
         if(email){
