@@ -9,7 +9,7 @@ const userMiddleware: UserMiddleware = new UserMiddleware();
 const userService: UserService = new UserService();
 const emailService: EmailService = new EmailService();
 
-userController.get('/', async (req: Request, res: Response) => {
+userController.get('/', userMiddleware.checkHeader, userMiddleware.checkAdminProfile, async (req: Request, res: Response) => {
     try {
         const { email } = req.query;
         if(email){
@@ -25,7 +25,7 @@ userController.get('/', async (req: Request, res: Response) => {
     };
 });
 
-userController.post('/create', userMiddleware.checkIfExists, async (req: Request, res: Response) => {
+userController.post('/create', userMiddleware.checkHeader, userMiddleware.checkAdminProfile, userMiddleware.checkIfExists, async (req: Request, res: Response) => {
     try {
         const userBody: UserBody = req.body;
         const createUser: ServiceResponse = await userService.createUser(userBody);
@@ -42,7 +42,7 @@ userController.post('/create', userMiddleware.checkIfExists, async (req: Request
     };
 });
 
-userController.put('/update', async (req: Request, res: Response) => {
+userController.put('/update', userMiddleware.checkHeader, userMiddleware.checkAdminProfile, async (req: Request, res: Response) => {
     try {
         const id = req.query.id;
         const userBody: UserBody = req.body;
@@ -54,7 +54,7 @@ userController.put('/update', async (req: Request, res: Response) => {
     };
 });
 
-userController.delete('/delete', async (req: Request, res: Response) => {
+userController.delete('/delete', userMiddleware.checkHeader, userMiddleware.checkAdminProfile, async (req: Request, res: Response) => {
     try {
         const id = req.query.id;
         const deleteUser: ServiceResponse = await userService.deleteUser(Number(id));
