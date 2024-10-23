@@ -54,7 +54,7 @@ userController.put('/update', userMiddleware.checkHeader, userMiddleware.checkAd
     };
 });
 
-userController.delete('/delete', async (req: Request, res: Response) => {
+userController.delete('/delete', userMiddleware.checkHeader, userMiddleware.checkAdminProfile, async (req: Request, res: Response) => {
     try {
         const id = req.query.id;
         const deleteUser: ServiceResponse = await userService.deleteUser(Number(id));
