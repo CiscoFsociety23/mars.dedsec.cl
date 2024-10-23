@@ -42,7 +42,7 @@ userController.post('/create', userMiddleware.checkHeader, userMiddleware.checkA
     };
 });
 
-userController.put('/update', async (req: Request, res: Response) => {
+userController.put('/update', userMiddleware.checkHeader, userMiddleware.checkAdminProfile, async (req: Request, res: Response) => {
     try {
         const id = req.query.id;
         const userBody: UserBody = req.body;
