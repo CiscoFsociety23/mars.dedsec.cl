@@ -25,7 +25,7 @@ userController.get('/', userMiddleware.checkHeader, userMiddleware.checkAdminPro
     };
 });
 
-userController.post('/create', userMiddleware.checkIfExists, async (req: Request, res: Response) => {
+userController.post('/create', userMiddleware.checkHeader, userMiddleware.checkAdminProfile, userMiddleware.checkIfExists, async (req: Request, res: Response) => {
     try {
         const userBody: UserBody = req.body;
         const createUser: ServiceResponse = await userService.createUser(userBody);
