@@ -6,6 +6,7 @@ WORKDIR /api.dedsec.cl
 COPY ./package.json .
 COPY ./dist .
 RUN npm install
+RUN npx prisma generate
 EXPOSE 8543
 
 CMD ["node", "./index.js"]
