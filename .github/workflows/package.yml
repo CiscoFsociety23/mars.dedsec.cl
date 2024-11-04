@@ -32,8 +32,11 @@ jobs:
       - name: Buid Aplicacion
         run: npm run build
 
+      - name: Iniciando Prisma Data Source
+        run: npx prisma init --datasource-provider mysql
+
       - name: Cargando Schema Base de Datos
-        run: npx prisma generate
+        run: npx prisma db pull
 
       - name:  Obteniendo Version
         id: get_version
