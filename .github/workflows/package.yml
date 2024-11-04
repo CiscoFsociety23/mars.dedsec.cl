@@ -32,6 +32,9 @@ jobs:
       - name: Buid Aplicacion
         run: npm run build
 
+      - name: Cargando Schema Base de Datos
+        run: npx prisma generate
+
       - name:  Obteniendo Version
         id: get_version
         run: |
