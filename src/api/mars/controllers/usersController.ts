@@ -42,6 +42,24 @@ userController.post('/create', userMiddleware.checkHeader, userMiddleware.checkA
     };
 });
 
+userController.post('/registry', userMiddleware.checkIfExists, async (req: Request, res: Response) => {
+    try {
+        const userBody: UserBody = req.body;
+        const user: UserBody = { name: userBody.name, lastName: userBody.lastName, email: userBody.email, passwd: userBody.passwd, profile: 2 }
+        const createUser: ServiceResponse = await userService.createUser(user);
+        emailService.sendWelcomeMail(userBody.email, 'Bienvenido a Dedsec Corp', userBody.name);
+        const tokenValidation = await userService.getValidationToken(userBody.email);
+        console.log(`[info]: Se asigna un token de validacion a la cuenta ${userBody.email}`);
+        setTimeout(() => {
+            emailService.sendValidationMail(userBody.email, 'Validacion de Cuenta', tokenValidation.token);
+        }, 5000);
+        res.json(createUser);
+    } catch (error) {
+        console.log(`[error]: ${error}`);
+        res.json({ status: false });
+    };
+});
+
 userController.put('/update', userMiddleware.checkHeader, userMiddleware.checkAdminProfile, async (req: Request, res: Response) => {
     try {
         const id = req.query.id;
